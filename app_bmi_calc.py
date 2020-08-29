@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# test change for github
-
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
@@ -25,17 +23,63 @@ def center_screen(window_width, window_height): # starts app window in the cente
 
 
 #  function used for validating user intput (height/weight) accepts only numeric values
-def validate_data(user_input, s):
-    print(s)
-    
+# ---------------------------------------------------------------------------
+def validate_data(S, s, d):
 
-    if user_input.isdigit():
-        return True
-    return False
-# -----------------------------------------------------------------------------
+    # %S = the text string being inserted or deleted, if any
+    # %s = value of entry prior to editing
+    # %d = Type of action (1=insert, 0=delete, -1 for others)
+
+    allowed_values_numeric = '0123456789'
+    allowed_values_all = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-'
+
+    user_input = S
+    entry_content_before_input = s
+    full_entry_content = s + S
+
+    # print('user_input:', user_input)
+    # print('entry_content_before_input:', entry_content_before_input)
+    # print('full_entry_content:', full_entry_content)
+
+    # ------------------------------------------------------------------
+    def validate_length(length_of_entry_field=20):
+
+        if len(full_entry_content) < length_of_entry_field + 1:
+            return True
+
+        if len(full_entry_content) >= length_of_entry_field + 1 and d == '0':
+            return True
+
+        return False
+    #-------------------------------------------------------------------
+
+    # ------------------------------------------------------------------
+    def validate_is_numeric():
+
+        try:
+            full_entry_content_float = float(full_entry_content)
+            full_entry_content_int = int(full_entry_content)
+            if full_entry_content_float == full_entry_content_int:
+                return True
+        except:
+            return False
+
+        # return False
+    #-------------------------------------------------------------------
 
 
-#  function used for validating user intput (name length)
+
+    stuff_to_validate = [
+                         validate_length(3),
+                         validate_is_numeric()
+                         ]
+
+    return all(stuff_to_validate)
+
+# ---------------------------------------------------------------------------
+
+
+# ----------- function used for validating user intput (name length)
 def validate_name(S, d):
 
     name = name_entry.get()
@@ -340,7 +384,7 @@ name_entry.config(fg='grey40', font=small_font)
 name_entry.insert(0, default_text)
 name_entry.place(relx=tf_padding+0.67, rely=tf_padding+tf_widget_height+0.07,
                 relwidth=0.28, relheight=tf_widget_height*0.8)
-name_entry.config(validate="key", validatecommand=(validation_name, '%S'))
+# name_entry.config(validate="key", validatecommand=(validation_name, '%S'))
 # name_entry.config(validate="key", validatecommand=(validation_name, '%s'))
 name_entry.config(validate="key", validatecommand=(validation_name, '%S', '%d'))
 
@@ -402,7 +446,7 @@ height_entry_feet = tk.Entry(imperial_frame, justify='center', bg=entry_field_co
 height_entry_feet.place(relx=left_padding+if_padding+if_widget_width*2, rely=if_padding+(1-entry_height_factor)*if_widget_height/2,
                         relwidth=if_widget_width*entry_factor,
                         relheight=if_widget_height*entry_height_factor)
-height_entry_feet.config(validate="key", validatecommand=(validation, '%S'))
+height_entry_feet.config(validate="key", validatecommand=(validation, '%S', '%s', '%d'))
 # -----------------------------------------------------------------------------
 feet_label = tk.Label(imperial_frame, text='  feet', bg=app_color, anchor='w',
                       justify='left', borderwidth=widget_borderwidth,
@@ -416,7 +460,7 @@ height_entry_inches.place(relx=left_padding+if_padding+if_widget_width*3+entry_f
                           rely=if_padding+(1-entry_height_factor)*if_widget_height/2,
                         relwidth=if_widget_width*entry_factor,
                         relheight=if_widget_height*entry_height_factor)
-height_entry_inches.config(validate="key", validatecommand=(validation, '%S'))
+height_entry_inches.config(validate="key", validatecommand=(validation, '%S', '%s', '%d'))
 # -----------------------------------------------------------------------------
 inches_label = tk.Label(imperial_frame, text='  inches', bg=app_color, anchor='w',
                         justify='left', borderwidth=widget_borderwidth,
@@ -437,7 +481,7 @@ stones_entry = tk.Entry(imperial_frame, justify='center', bg=entry_field_color,
 stones_entry.place(relx=left_padding+if_padding+if_widget_width*2, rely=if_padding+if_widget_height+(1-entry_height_factor)*if_widget_height/2,
                         relwidth=if_widget_width*entry_factor,
                         relheight=if_widget_height*entry_height_factor)
-stones_entry.config(validate="key", validatecommand=(validation, '%S'))
+stones_entry.config(validate="key", validatecommand=(validation, '%S', '%s', '%d'))
 # -----------------------------------------------------------------------------
 stones_label = tk.Label(imperial_frame, text='  stones', bg=app_color, anchor='w',
                         justify='left', borderwidth=widget_borderwidth,
@@ -450,7 +494,7 @@ pounds_entry = tk.Entry(imperial_frame, justify='center', bg=entry_field_color,
 pounds_entry.place(relx=left_padding+if_padding+if_widget_width*3+entry_factor*if_widget_width, rely=if_padding+if_widget_height+(1-entry_height_factor)*if_widget_height/2,
                         relwidth=if_widget_width*entry_factor,
                         relheight=if_widget_height*entry_height_factor)
-pounds_entry.config(validate="key", validatecommand=(validation, '%S'))
+pounds_entry.config(validate="key", validatecommand=(validation, '%S', '%s', '%d'))
 # -----------------------------------------------------------------------------
 pounds_label = tk.Label(imperial_frame, text='  pounds', bg=app_color, anchor='w',
                         justify='left', borderwidth=widget_borderwidth,
@@ -488,7 +532,7 @@ height_entry_cm.place(relx=left_padding+mf_padding+mf_widget_width*2,
                       rely=mf_padding+(1-entry_height_factor)*mf_widget_height/2,
                       relwidth=mf_widget_width*entry_factor,
                       relheight=mf_widget_height*entry_height_factor)
-height_entry_cm.config(validate="key", validatecommand=(validation, '%S'))
+height_entry_cm.config(validate="key", validatecommand=(validation, '%S', '%s', '%d'))
 # -----------------------------------------------------------------------------
 cm_label = tk.Label(metric_frame, text='  centimeters', bg=app_color, anchor='w',
                     justify='left', borderwidth=widget_borderwidth,
@@ -509,7 +553,7 @@ kilograms_entry.place(relx=left_padding+mf_padding+mf_widget_width*2,
                       rely=mf_padding+mf_widget_height+(1-entry_height_factor)*mf_widget_height/2,
                           relwidth=mf_widget_width*entry_factor,
                           relheight=mf_widget_height*entry_height_factor)
-kilograms_entry.config(validate="key", validatecommand=(validation, '%S'))
+kilograms_entry.config(validate="key", validatecommand=(validation, '%S', '%s', '%d'))
 # -----------------------------------------------------------------------------
 kilograms_label = tk.Label(metric_frame, text='  kilograms', bg=app_color, anchor='w',
                            justify='left', borderwidth=widget_borderwidth,
@@ -538,5 +582,11 @@ calculate_button.place(relx=0.275, rely=0.15, relwidth=0.45, relheight=0.7)
 bottom_frame.grid(row=2, column=1, sticky='we')
 # ---------------            end of frame 4 block            ------------------
 
+
+# def push_enter(*args, **kwargs):
+#     add_task(datafile, entry_task.get())
+
+# root.bind("<KeyPress-Return>", push_enter)
+root.bind("<KeyPress-Return>", calculate_bmi)
 
 root.mainloop()
