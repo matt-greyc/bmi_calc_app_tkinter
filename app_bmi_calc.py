@@ -30,8 +30,8 @@ def validate_data(S, s, d):
     # %s = value of entry prior to editing
     # %d = Type of action (1=insert, 0=delete, -1 for others)
 
-    allowed_values_numeric = '0123456789'
-    allowed_values_all = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-'
+    # allowed_values_numeric = '0123456789'
+    # allowed_values_all = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-'
 
     user_input = S
     entry_content_before_input = s
@@ -84,19 +84,25 @@ def validate_name(S, d):
 
     name = name_entry.get()
 
-    # print(S, type(S), d, type(d))
+    allowed_values_all = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._- '
+
+        # print(S, type(S), d, type(d))
     # print(name, 'len', len(name))
 
     if name == default_text:
         return True
 
-    if len(name) > 12 and d == '0':
+    for letter in S:
+        if letter not in allowed_values_all:
+            return False
+
+    if len(name) > 9 and d == '0':
         return True
 
-    if len(name)+ len(S) > 13 and d == '1':
+    if len(name)+ len(S) > 10 and d == '1':
         return False
 
-    if len(name) <= 12:
+    if len(name) <= 9:
         return True
 
     return False
@@ -109,11 +115,24 @@ def f_metric_rb(): # executed when metric radiobutton is selected
     # self.entry.delete(0, 'end')
     global metric_frame_is_active
     metric_frame.tkraise()  # makes metric frame the top frame
+    metric_rb.focus()
+
+    # when metric frame is active metric entries are activated and imperial entries are deactivated
+    kilograms_entry.config(takefocus=True)
+    height_entry_cm.config(takefocus=True)
+    height_entry_feet.config(takefocus=False)
+    height_entry_inches.config(takefocus=False)
+    stones_entry.config(takefocus=False)
+    pounds_entry.config(takefocus=False)
+
     height_entry_feet.delete(0, 'end')  # clears 'feet' entry
     height_entry_inches.delete(0, 'end')  # clears 'inches' entry
     stones_entry.delete(0, 'end')  # clears 'stones' entry
     pounds_entry.delete(0, 'end')  # clears 'pounds' entry
     metric_frame_is_active = True  # variable used to determine the top frame
+
+    calculate_button.config(takefocus=False)
+    
 # -----------------------------------------------------------------------------
 
 
@@ -122,9 +141,22 @@ def f_metric_rb(): # executed when metric radiobutton is selected
 def f_imperial_rb():  # executed when imperial radiobutton is selected
     global metric_frame_is_active
     imperial_frame.tkraise()  # makes imperial frame the top frame
+    imperial_rb.focus()
+
+    # when imperial frame is active imperial entries are activated and metric entries are deactivated
+    height_entry_feet.config(takefocus=True)
+    height_entry_inches.config(takefocus=True)
+    stones_entry.config(takefocus=True)
+    pounds_entry.config(takefocus=True)
+    kilograms_entry.config(takefocus=False)
+    height_entry_cm.config(takefocus=False)
+
     height_entry_cm.delete(0, 'end')
     kilograms_entry.delete(0, 'end')
     metric_frame_is_active = False  # variable used to determine the top frame
+
+    calculate_button.config(takefocus=False)
+
 # -----------------------------------------------------------------------------
 
 
@@ -189,6 +221,8 @@ valid height and weight.'''
             result_dict = dict(cm=0, kg=0, feet=feet, inches=inches, stones=stones, pounds=pounds, BMI=bmi)
 
             display_results(**result_dict)  # displays bmi + info messages
+
+            
 # ----------------   end of 'calculate BMI' function block  ------------------
 
 
@@ -198,7 +232,7 @@ def display_results(*args, **kwargs):
     global default_text
 
     #  saves results as csv file if user clicks 'save' button -----------------
-    def save_file():
+    def save_file(*args, **kwargs):
         nonlocal username
 
         f_date = datetime.datetime.now().strftime("%Y-%m-%d")  # date string: 2020-01-28
@@ -233,6 +267,7 @@ def display_results(*args, **kwargs):
         pounds_entry.delete(0, 'end')
 
         results_frame.destroy()
+        root.bind("<KeyPress-Return>", calculate_bmi)
     #  ------------------------------------------------------------------------
 
     bmi_result = kwargs['BMI']  # kwargs -> bmi result dict
@@ -302,6 +337,9 @@ chronic diseases and shortening your lifespan.'''
 
     results_frame.focus()
     results_frame.grid(row=0, column=0, sticky='nswe')
+
+    root.unbind("<KeyPress-Return>", calculate_bmi)
+
     # ---------------         end of results frame block         --------------
 #  ------------------ end of display bmi result function block ----------------
 
@@ -310,7 +348,7 @@ chronic diseases and shortening your lifespan.'''
 root = tk.Tk()
 
 # root dimensions
-root_height, root_width = 250, 525
+root_height, root_width = 250, 600
 
 date = datetime.datetime.now().strftime("%d-%m-%Y")  # current date in sting format
 
@@ -375,15 +413,15 @@ metric_rb.select()  # selects metric radiobutton when app starts
 # -----------------------------------------------------------------------------
 name_label = tk.Label(top_frame, text='Name:', justify='right', bd=0, relief='groove',
                      font=radiobutton_font, bg=app_color, fg=radiobutton_font_color)
-name_label.place(relx=tf_padding+0.55, rely=tf_padding+tf_widget_height,
+name_label.place(relx=tf_padding+0.5, rely=tf_padding+tf_widget_height,
                 relwidth=0.11, relheight=tf_widget_height)
 # -----------------------------------------------------------------------------
 name_entry = tk.Entry(top_frame, justify='center', bg='thistle2')
 default_text = 'Enter name'
 name_entry.config(fg='grey40', font=small_font)
 name_entry.insert(0, default_text)
-name_entry.place(relx=tf_padding+0.67, rely=tf_padding+tf_widget_height+0.07,
-                relwidth=0.28, relheight=tf_widget_height*0.8)
+name_entry.place(relx=tf_padding+0.62, rely=tf_padding+tf_widget_height+0.07,
+                relwidth=0.31, relheight=tf_widget_height*0.8)
 # name_entry.config(validate="key", validatecommand=(validation_name, '%S'))
 # name_entry.config(validate="key", validatecommand=(validation_name, '%s'))
 name_entry.config(validate="key", validatecommand=(validation_name, '%S', '%d'))
@@ -391,7 +429,7 @@ name_entry.config(validate="key", validatecommand=(validation_name, '%S', '%d'))
 
 # -----------------------------------------------------------------------------
 def name_entry_focus_out(*args, **kwargs):
-    name_entry.config(fg='grey15', font=medium_font)
+    name_entry.config(fg='grey15', font=small_font)
     name = name_entry.get().strip()
     name_entry.delete(0, 'end')
     name_entry.insert(0, name)
@@ -587,6 +625,21 @@ bottom_frame.grid(row=2, column=1, sticky='we')
 #     add_task(datafile, entry_task.get())
 
 # root.bind("<KeyPress-Return>", push_enter)
+
+# when app starts metric frame is active
+kilograms_entry.config(takefocus=True)
+height_entry_cm.config(takefocus=True)
+height_entry_feet.config(takefocus=False)
+height_entry_inches.config(takefocus=False)
+stones_entry.config(takefocus=False)
+pounds_entry.config(takefocus=False)
+
+metric_rb.focus()
+
+calculate_button.config(takefocus=False)
+
 root.bind("<KeyPress-Return>", calculate_bmi)
+# root.bind("<KeyPress-Escape>", lambda x: root.destroy())
+
 
 root.mainloop()
